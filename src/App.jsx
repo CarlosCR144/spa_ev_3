@@ -1,35 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import Formulario from "./Formulario";
+import Nota from "./Nota";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+    console.log('CONSOLE LOCALSTORAGE NOTAS', localStorage.getItem('Notas'))
+    
+    const [arrNotas, setArrNotas] = useState( 
+        () => {
+            if (localStorage.getItem('Notas')) {
+                return JSON.parse(localStorage.getItem('Notas'))
+            } else {
+                return []
+            }
+        }
+    )
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    useEffect( () => {
+        localStorage.setItem('Notas', JSON.stringify(arrNotas))
+    }, [arrNotas] )
+
+    const agregarNota = (nuevo) => {
+        setArrNotas([...arrNotas, nuevo])
+    }
+
+
+    return (
+        <div className="container">
+            <h1 className="text-4xl font-bold text- text-gray-300 mb-6">Notas adhesivas</h1>
+            
+            <Formulario agregar={agregarNota} />
+
+            <div className="notes-grid">
+                {   
+                    arrNotas.map( (nota, index) => (
+                        <div key={index}>
+                            <Nota
+                                titulo={nota.titulo}
+                                descripcion={nota.descripcion}
+                                importante={nota.importante}
+                                eliminar={() => {
+                                    setArrNotas(arrNotas.filter( (_, i) => i != index ))
+                                }}
+                                degree={nota.degree}
+                            />
+                        </div>
+                    ) )
+                }
+            </div>
+        </div>
+    )
 }
-
-export default App
